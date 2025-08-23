@@ -11,6 +11,9 @@ export async function POST(req: Request) {
     if (!token || !token.startsWith('hf_')) {
       return NextResponse.json({ error: 'Valid Hugging Face token required' }, { status: 400 });
     }
+    if (typeof duration !== 'number' || duration < 1 || duration > 6) {
+      return NextResponse.json({ error: 'Duration must be a number between 1 and 6 seconds.' }, { status: 400 });
+    }
 
     const { Client } = await import("@gradio/client");
     const client = await Client.connect("ginigen/VEO3-Free", { hf_token: token as `hf_${string}` });

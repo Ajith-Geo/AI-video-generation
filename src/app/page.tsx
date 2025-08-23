@@ -25,8 +25,8 @@ export default function Home() {
     e.preventDefault();
     setDurationError("");
     const numDuration = Number(duration);
-    if (isNaN(numDuration) || numDuration < 1 || numDuration > 8) {
-      setDurationError("Duration must be a number between 1 and 8 seconds.");
+    if (isNaN(numDuration) || numDuration < 1 || numDuration > 6) {
+      setDurationError("Duration must be a number between 1 and 6 seconds.");
       return;
     }
     setLoading(true);
@@ -103,7 +103,7 @@ export default function Home() {
             required
           />
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-gray-600">Duration (1 to 8 seconds):</span>
+            <span className="text-sm text-gray-600">Duration (1 to 6 seconds):</span>
             {/* Plain text box for duration, as before */}
             <input
               type="text"
