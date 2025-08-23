@@ -35,7 +35,7 @@ export async function GET(req: Request) {
       }
     }
   const stream: NodeJS.ReadableStream = fs.createReadStream(videoPath, { start, end });
-  return new NextResponse(stream, { status, headers });
+  return new NextResponse(stream as unknown as BodyInit, { status, headers });
   } catch (e: any) {
   return new NextResponse((e as Error).message || 'Unknown error', { status: 500 });
   }

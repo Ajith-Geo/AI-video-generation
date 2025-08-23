@@ -56,8 +56,8 @@ export async function POST(req: Request) {
 
     // Stream the video file back in the response
     const stat = fs.statSync(tmpPath);
-    const stream: NodeJS.ReadableStream = fs.createReadStream(tmpPath);
-    return new Response(stream, {
+  const stream: NodeJS.ReadableStream = fs.createReadStream(tmpPath);
+  return new Response(stream as unknown as BodyInit, {
       status: 200,
       headers: {
         'Content-Type': 'video/mp4',
