@@ -13,16 +13,18 @@ export async function POST(req: Request) {
     }
 
     const { Client } = await import("@gradio/client");
-    const client = await Client.connect("zerogpu-aoti/wan2-2-fp8da-aoti", { hf_token: token as `hf_${string}` });
-    const result = await client.predict("/generate_video", {
+    const client = await Client.connect("ginigen/VEO3-Free", { hf_token: token as `hf_${string}` });
+    const result = await client.predict("/generate_video_with_audio", {
       prompt: prompt,
-      negative_prompt: "色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 画得不好的手部, 画得不好的脸部, 畸形的, 毁容的, 形态畸形的肢体, 手指融合, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走",
+      nag_negative_prompt: "Static, motionless, still, ugly, bad quality, worst quality, poorly drawn, low resolution, blurry, lack of details",
+      nag_scale: 11,
+      height: 480,
+      width: 832,
       duration_seconds: duration,
-      guidance_scale: 1,
-      guidance_scale_2: 3,
       steps: 4,
-      seed: 42,
-      randomize_seed: true
+      seed: 2025,
+      randomize_seed: true,
+      enable_audio: false,
     });
 
   // Safely extract the video URL from the result without using `any`

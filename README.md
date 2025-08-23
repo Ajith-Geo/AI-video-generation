@@ -9,20 +9,24 @@
 - **Styling:** Tailwind CSS (utility-first CSS framework)
 - **Hosting:** Vercel (serverless, edge-ready)
 - **Storage:** Vercel Blob (for production video streaming)
-- **AI Model:** [`zerogpu-aoti/wan2-2-fp8da-aoti`](https://huggingface.co/zerogpu-aoti/wan2-2-fp8da-aoti) (Hugging Face, via Gradio client)
+- **AI Model:** [`ginigen/VEO3-Free`](https://huggingface.co/spaces/ginigen/VEO3-Free) (Hugging Face, via Gradio client)
 - **API Client:** @gradio/client (for model inference)
 - **Node.js:** 18+ (native fetch, streaming support)
 - **Other:** ESLint, Prettier (for code quality)
 
 ## Overview
-This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration to generate a short AI video, which is streamed directly in the browser for a seamless experience.
+This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–8 seconds, default 4) to generate a short AI video using the ginigen/VEO3-Free model. The video is streamed directly in the browser for a seamless experience.
 
 ---
 
 ## Features & Functionality
-- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration to generate a video using the Hugging Face/Gradio API.
-- **Streaming playback**: Videos are streamed to the browser using HTTP Range requests (no full download required).
-- **Error handling**: Clear feedback for invalid tokens, API errors, and deployment/storage issues.
+- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration (1–8 seconds, default 4) to generate a video using the ginigen/VEO3-Free model via the Hugging Face/Gradio API.
+- **Streaming playback**: Videos are streamed to the browser using HTTP Range requests (no full download required). This is true HTTP streaming—playback starts as soon as the first bytes arrive, and users can seek without downloading the whole file.
+## User Experience
+
+- **Duration input**: User can enter any value between 1 and 8 seconds (default 4) in a plain text box. Out-of-range values are caught and shown as an error in the UI.
+- **Generation time warning**: The UI displays a clear message: “Note: Video generation might take up to 3 minutes. Please wait.”
+- **Animated feedback**: While generating, the button shows “Generating...” with animated dots so users know the process is ongoing.
 - **Bonus**: True streaming (not just download), with fallback for local/dev and production.
 
 ---
@@ -69,12 +73,10 @@ This project is an AI-powered video generator built with Next.js, TypeScript, an
 - Paste it in the UI when generating a video.
 
 ### Streaming Details
-- Videos are streamed using HTTP Range requests for instant playback and seeking.
+- Videos are streamed using HTTP Range requests for instant playback and seeking. This is true HTTP streaming, not a full download.
 - In production, videos are uploaded to Vercel Blob and served from a public, range-enabled URL.
 - In local/dev, videos are saved to `./videos` and streamed via `/api/stream-video`.
 
-### Security
-- All secrets are loaded from environment variables. (If running locally)
 
 ---
 
