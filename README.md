@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# AI Video Generation
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack & Model Details
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Framework:** [Next.js](https://nextjs.org/) (React, App Router)
+- **Language:** TypeScript (strict mode)
+- **Styling:** Tailwind CSS (utility-first CSS framework)
+- **Hosting:** Vercel (serverless, edge-ready)
+- **Storage:** Vercel Blob (for production video streaming)
+- **AI Model:** [`zerogpu-aoti/wan2-2-fp8da-aoti`](https://huggingface.co/zerogpu-aoti/wan2-2-fp8da-aoti) (Hugging Face, via Gradio client)
+- **API Client:** @gradio/client (for model inference)
+- **Node.js:** 18+ (native fetch, streaming support)
+- **Other:** ESLint, Prettier (for code quality)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Overview
+This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration to generate a short AI video, which is streamed directly in the browser for a seamless experience.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Features & Functionality
+- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration to generate a video using the Hugging Face/Gradio API.
+- **Streaming playback**: Videos are streamed to the browser using HTTP Range requests (no full download required).
+- **Error handling**: Clear feedback for invalid tokens, API errors, and deployment/storage issues.
+- **Bonus**: True streaming (not just download), with fallback for local/dev and production.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
+- **Vercel-ready**: Fully compatible with Vercel’s serverless environment.
+- **Blob storage**: Uses [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) for persistent, streamable video URLs in production.
+- **Local fallback**: In development, videos are saved to `./videos` and streamed via a custom API endpoint.
+- **Easy deploy**: One-click deploy to Vercel, or run locally with Node.js 18+.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Environment Variables
+- `BLOB_READ_WRITE_TOKEN` (Production): Required for Vercel Blob uploads. Set in Vercel Project Settings > Environment Variables.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Code Quality
+- **TypeScript**: Strict typing, no `any` types, and safe error handling.
+- **Linted**: Passes ESLint and type checks.
+- **Clean code**: No unused imports, dead code, or unnecessary dependencies.
+- **Modular**: API and UI are separated and easy to maintain.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Documentation
+
+### Setup & Usage
+1. **Clone the repo:**
+	```bash
+	git clone https://github.com/Ajith-Geo/AI-video-generation.git
+	cd AI-video-generation
+	```
+2. **Install dependencies:**
+	```bash
+	npm install
+	```
+3. **Run locally:**
+	```bash
+	npm run dev
+	# Visit http://localhost:3000
+	```
+
+### Hugging Face Token
+- Get a token from [Hugging Face](https://huggingface.co/settings/tokens) (must start with `hf_`).
+- Paste it in the UI when generating a video.
+
+### Streaming Details
+- Videos are streamed using HTTP Range requests for instant playback and seeking.
+- In production, videos are uploaded to Vercel Blob and served from a public, range-enabled URL.
+- In local/dev, videos are saved to `./videos` and streamed via `/api/stream-video`.
+
+### Security
+- All secrets are loaded from environment variables. (If running locally)
+
+---
+
+## Innovation
+- **True streaming**: Uses `<video src={url}>` with a streamable endpoint (Blob or custom) for progressive playback.
+- **Fallback logic**: Works both locally and in production, adapting to available storage.
+- **Bonus**: Handles CORS, Range, and error edge cases for robust UX.
+
+---

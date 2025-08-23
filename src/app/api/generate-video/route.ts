@@ -1,8 +1,6 @@
 
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
-import fetch from 'node-fetch';
 import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
@@ -58,13 +56,14 @@ export async function POST(req: Request) {
     }
 
     // Local fallback: save under ./videos and stream via our Range-enabled endpoint
-    const videosDir = path.join(process.cwd(), 'videos');
-    if (!fs.existsSync(videosDir)) fs.mkdirSync(videosDir, { recursive: true });
-  const filePath = path.join(videosDir, filename);
+  // Local fallback: save under ./videos and stream via our Range-enabled endpoint
+  const videosDir = `${process.cwd()}/videos`;
+  if (!fs.existsSync(videosDir)) fs.mkdirSync(videosDir, { recursive: true });
+  const filePath = `${videosDir}/${filename}`;
   const arrayBuffer = await videoRes.arrayBuffer();
   await fs.promises.writeFile(filePath, Buffer.from(arrayBuffer));
-    const urlForClient = `/api/stream-video?file=${encodeURIComponent(filename)}`;
-    return NextResponse.json({ url: urlForClient });
+  const urlForClient = `/api/stream-video?file=${encodeURIComponent(filename)}`;
+  return NextResponse.json({ url: urlForClient });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

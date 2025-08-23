@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
+// path import removed (not needed)
 import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     if (!url) {
       return new NextResponse('Missing file parameter', { status: 400 });
     }
-    const videoPath = path.join(process.cwd(), 'videos', url);
+  const videoPath = `${process.cwd()}/videos/${url}`;
     if (!fs.existsSync(videoPath)) {
       return new NextResponse('File not found', { status: 404 });
     }
