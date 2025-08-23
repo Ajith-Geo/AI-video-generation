@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
 
@@ -25,17 +26,11 @@ export async function POST(req: Request) {
       randomize_seed: true
     });
 
-    let videoUrl: string | undefined;
-    if (
-      result &&
-      typeof result === 'object' &&
-      Array.isArray((result as { data?: unknown }).data) &&
-      (result as { data: unknown[] }).data[0] &&
-      typeof (result as { data: unknown[] }).data[0] === 'object' &&
-      (result as { data: { video?: { url?: string } }[] }).data[0].video?.url
-    ) {
-      videoUrl = (result as { data: { video: { url: string } }[] }).data[0].video.url;
-    }
+  // Safely extract the video URL from the result without using `any`
+  type ResultShape = { data?: Array<{ video?: { url?: unknown } }> };
+  const maybe: ResultShape = (typeof result === 'object' && result !== null) ? (result as ResultShape) : {};
+  const urlCandidate = maybe.data?.[0]?.video?.url;
+  const videoUrl: string | undefined = typeof urlCandidate === 'string' ? urlCandidate : undefined;
     if (!videoUrl) {
       return NextResponse.json({ error: 'No video URL found in response' }, { status: 500 });
     }
@@ -48,16 +43,17 @@ export async function POST(req: Request) {
     const tmpPath = '/tmp/output.mp4';
     const fileStream = fs.createWriteStream(tmpPath);
     await new Promise<void>((resolve, reject) => {
-      (videoRes.body as NodeJS.ReadableStream).pipe(fileStream);
-      (videoRes.body as NodeJS.ReadableStream).on('error', reject);
+      (videoRes.body!).pipe(fileStream);
+      (videoRes.body!).on('error', reject);
       fileStream.on('finish', () => resolve());
       fileStream.on('error', reject);
     });
 
     // Stream the video file back in the response
     const stat = fs.statSync(tmpPath);
-  const stream: NodeJS.ReadableStream = fs.createReadStream(tmpPath);
-  return new Response(stream as unknown as BodyInit, {
+    const stream = fs.createReadStream(tmpPath);
+    const webStream = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
+    return new Response(webStream, {
       status: 200,
       headers: {
         'Content-Type': 'video/mp4',
@@ -65,7 +61,8 @@ export async function POST(req: Request) {
         'Content-Disposition': 'inline; filename="output.mp4"',
       },
     });
-  } catch (e: any) {
-  return NextResponse.json({ error: (e as Error).message || 'Unknown error' }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

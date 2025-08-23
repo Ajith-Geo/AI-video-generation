@@ -1,12 +1,14 @@
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
+import path from 'path';
+import { Readable } from 'stream';
 
 export const runtime = 'nodejs';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-  const { searchParams } = new URL(req.url);
-  const url = searchParams.get('file');
+    const url = req.nextUrl.searchParams.get('file');
     if (!url) {
       return new NextResponse('Missing file parameter', { status: 400 });
     }
@@ -34,9 +36,11 @@ export async function GET(req: Request) {
         headers['Content-Length'] = String(end - start + 1);
       }
     }
-  const stream: NodeJS.ReadableStream = fs.createReadStream(videoPath, { start, end });
-  return new NextResponse(stream as unknown as BodyInit, { status, headers });
-  } catch (e: any) {
-  return new NextResponse((e as Error).message || 'Unknown error', { status: 500 });
+    const stream = fs.createReadStream(videoPath, { start, end });
+    const webStream = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
+    return new NextResponse(webStream as unknown as BodyInit, { status, headers });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    return new NextResponse(message, { status: 500 });
   }
 }

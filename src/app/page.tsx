@@ -27,17 +27,14 @@ export default function Home() {
       } else {
         let errorMsg = "Error generating video";
         try {
-          const data: { error?: string } = await res.json();
+          const data = await res.json();
           errorMsg = data.error || errorMsg;
         } catch {}
         setError(errorMsg);
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Error generating video");
-      } else {
-        setError("Error generating video");
-      }
+      const message = err instanceof Error ? err.message : "Error generating video";
+      setError(message);
     } finally {
       setLoading(false);
     }
