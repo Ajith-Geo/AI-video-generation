@@ -70,13 +70,14 @@ export async function POST(req: Request) {
     let message = 'Unknown error';
     if (e instanceof Error) {
       message = e.message;
-      if ((e as any).stack) {
-        message += '\n' + (e as any).stack;
-      }
     } else if (typeof e === 'string') {
       message = e;
     } else if (typeof e === 'object' && e !== null) {
-      message = JSON.stringify(e);
+      try {
+        message = JSON.stringify(e);
+      } catch {
+        message = 'Unknown error';
+      }
     }
     return NextResponse.json({ error: message }, { status: 500 });
   }

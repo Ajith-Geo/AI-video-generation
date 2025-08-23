@@ -46,7 +46,7 @@ export default function Home() {
           setError(data.error || "No video URL returned");
         }
       } else {
-        let errorMsg = "Error generating video";
+        const errorMsg = "Error generating video";
         try {
           const data = await res.json();
           // Try to extract a user-friendly message from error JSON
