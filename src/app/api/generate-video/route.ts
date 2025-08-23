@@ -1,8 +1,9 @@
 
 import { NextResponse } from 'next/server';
 import fs from 'fs';
+import path from 'path';
 import fetch from 'node-fetch';
-import { Readable } from 'stream';
+import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 
@@ -34,33 +35,31 @@ export async function POST(req: Request) {
     if (!videoUrl) {
       return NextResponse.json({ error: 'No video URL found in response' }, { status: 500 });
     }
-    const videoRes = await fetch(videoUrl);
+  const videoRes = await fetch(videoUrl);
     if (!videoRes.ok || !videoRes.body) {
       return NextResponse.json({ error: 'Failed to download video' }, { status: 500 });
     }
+    // Prefer Vercel Blob (supports Range and is production-safe). Fallback to local dev file.
+    const filename = `output_${Date.now()}.mp4`;
+    const tokenEnv = process.env.BLOB_READ_WRITE_TOKEN;
+    if (tokenEnv) {
+      const blob = await videoRes.blob();
+      const { url } = await put(`videos/${filename}`, blob, {
+        access: 'public',
+        contentType: 'video/mp4',
+        token: tokenEnv,
+      });
+      return NextResponse.json({ url });
+    }
 
-    // Save to /tmp/output.mp4 (Vercel-compatible)
-    const tmpPath = '/tmp/output.mp4';
-    const fileStream = fs.createWriteStream(tmpPath);
-    await new Promise<void>((resolve, reject) => {
-      (videoRes.body!).pipe(fileStream);
-      (videoRes.body!).on('error', reject);
-      fileStream.on('finish', () => resolve());
-      fileStream.on('error', reject);
-    });
-
-    // Stream the video file back in the response
-    const stat = fs.statSync(tmpPath);
-    const stream = fs.createReadStream(tmpPath);
-    const webStream = Readable.toWeb(stream) as ReadableStream<Uint8Array>;
-    return new Response(webStream, {
-      status: 200,
-      headers: {
-        'Content-Type': 'video/mp4',
-        'Content-Length': String(stat.size),
-        'Content-Disposition': 'inline; filename="output.mp4"',
-      },
-    });
+    // Local fallback: save under ./videos and stream via our Range-enabled endpoint
+    const videosDir = path.join(process.cwd(), 'videos');
+    if (!fs.existsSync(videosDir)) fs.mkdirSync(videosDir, { recursive: true });
+  const filePath = path.join(videosDir, filename);
+  const arrayBuffer = await videoRes.arrayBuffer();
+  await fs.promises.writeFile(filePath, Buffer.from(arrayBuffer));
+    const urlForClient = `/api/stream-video?file=${encodeURIComponent(filename)}`;
+    return NextResponse.json({ url: urlForClient });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

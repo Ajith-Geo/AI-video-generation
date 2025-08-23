@@ -20,10 +20,13 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, token, duration }),
       });
-      if (res.ok && res.headers.get('content-type')?.includes('video/mp4')) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        setVideoUrl(url);
+      if (res.ok) {
+        const data: { url?: string; error?: string } = await res.json();
+        if (data.url) {
+          setVideoUrl(data.url);
+        } else {
+          setError(data.error || "No video URL returned");
+        }
       } else {
         let errorMsg = "Error generating video";
         try {
