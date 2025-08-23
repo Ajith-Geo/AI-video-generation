@@ -15,16 +15,16 @@
 - **Other:** ESLint, Prettier (for code quality)
 
 ## Overview
-This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–8 seconds, default 4) to generate a short AI video using the ginigen/VEO3-Free model. The video is streamed directly in the browser for a seamless experience.
+This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a short AI video using the ginigen/VEO3-Free model. The video is streamed directly in the browser for a seamless experience.
 
 ---
 
 ## Features & Functionality
-- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration (1–8 seconds, default 4) to generate a video using the ginigen/VEO3-Free model via the Hugging Face/Gradio API.
+- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a video using the ginigen/VEO3-Free model via the Hugging Face/Gradio API.
 - **Streaming playback**: Videos are streamed to the browser using HTTP Range requests (no full download required). This is true HTTP streaming—playback starts as soon as the first bytes arrive, and users can seek without downloading the whole file.
 ## User Experience
 
-- **Duration input**: User can enter any value between 1 and 8 seconds (default 4) in a plain text box. Out-of-range values are caught and shown as an error in the UI.
+- **Duration input**: User can enter any value between 1 and 6 seconds (default 2) in a plain text box. Out-of-range values are caught and shown as an error in the UI.
 - **Generation time warning**: The UI displays a clear message: “Note: Video generation might take up to 3 minutes. Please wait.”
 - **Animated feedback**: While generating, the button shows “Generating...” with animated dots so users know the process is ongoing.
 - **Bonus**: True streaming (not just download), with fallback for local/dev and production.
