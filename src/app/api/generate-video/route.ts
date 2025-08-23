@@ -1,8 +1,6 @@
 
-import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import fs from 'fs';
-import path from 'path';
 import fetch from 'node-fetch';
 
 export const runtime = 'nodejs';
@@ -28,8 +26,15 @@ export async function POST(req: Request) {
     });
 
     let videoUrl: string | undefined;
-    if (result && Array.isArray((result as any).data) && (result as any).data[0]?.video?.url) {
-      videoUrl = (result as any).data[0].video.url;
+    if (
+      result &&
+      typeof result === 'object' &&
+      Array.isArray((result as { data?: unknown }).data) &&
+      (result as { data: unknown[] }).data[0] &&
+      typeof (result as { data: unknown[] }).data[0] === 'object' &&
+      (result as { data: { video?: { url?: string } }[] }).data[0].video?.url
+    ) {
+      videoUrl = (result as { data: { video: { url: string } }[] }).data[0].video.url;
     }
     if (!videoUrl) {
       return NextResponse.json({ error: 'No video URL found in response' }, { status: 500 });
@@ -43,16 +48,16 @@ export async function POST(req: Request) {
     const tmpPath = '/tmp/output.mp4';
     const fileStream = fs.createWriteStream(tmpPath);
     await new Promise<void>((resolve, reject) => {
-      (videoRes.body!).pipe(fileStream);
-      (videoRes.body!).on('error', reject);
+      (videoRes.body as NodeJS.ReadableStream).pipe(fileStream);
+      (videoRes.body as NodeJS.ReadableStream).on('error', reject);
       fileStream.on('finish', () => resolve());
       fileStream.on('error', reject);
     });
 
     // Stream the video file back in the response
     const stat = fs.statSync(tmpPath);
-    const stream = fs.createReadStream(tmpPath);
-    return new Response(stream as any, {
+    const stream: NodeJS.ReadableStream = fs.createReadStream(tmpPath);
+    return new Response(stream, {
       status: 200,
       headers: {
         'Content-Type': 'video/mp4',
@@ -61,6 +66,6 @@ export async function POST(req: Request) {
       },
     });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || 'Unknown error' }, { status: 500 });
+  return NextResponse.json({ error: (e as Error).message || 'Unknown error' }, { status: 500 });
   }
 }
