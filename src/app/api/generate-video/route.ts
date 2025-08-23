@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     if (!videoUrl) {
       return NextResponse.json({ error: 'No video URL found in response' }, { status: 500 });
     }
-  const videoRes = await fetch(videoUrl);
+    const videoRes = await fetch(videoUrl);
     if (!videoRes.ok || !videoRes.body) {
       return NextResponse.json({ error: 'Failed to download video' }, { status: 500 });
     }
@@ -50,6 +50,11 @@ export async function POST(req: Request) {
         token: tokenEnv,
       });
       return NextResponse.json({ url });
+    }
+
+    // If running on Vercel without Blob token, avoid filesystem writes and return the upstream URL.
+    if (process.env.VERCEL === '1') {
+      return NextResponse.json({ url: videoUrl });
     }
 
     // Local fallback: save under ./videos and stream via our Range-enabled endpoint
