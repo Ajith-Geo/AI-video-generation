@@ -49,9 +49,23 @@ export default function Home() {
         let errorMsg = "Error generating video";
         try {
           const data = await res.json();
-          errorMsg = data.error || errorMsg;
-        } catch {}
-        setError(errorMsg);
+          // Try to extract a user-friendly message from error JSON
+          let displayMsg = data.error || errorMsg;
+          try {
+            // If error is a JSON string, parse and extract message
+            const parsed = typeof displayMsg === 'string' ? JSON.parse(displayMsg) : displayMsg;
+            if (parsed && typeof parsed === 'object' && parsed.message) {
+              displayMsg = parsed.message;
+            }
+          } catch {}
+          // If quota or API key issue, add suggestion
+          if (typeof displayMsg === 'string' && /quota|api key|token|exceeded/i.test(displayMsg)) {
+            displayMsg += ' Please try another API key.';
+          }
+          setError(displayMsg);
+        } catch {
+          setError(errorMsg);
+        }
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error generating video";

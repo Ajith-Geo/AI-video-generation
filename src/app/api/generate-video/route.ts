@@ -67,7 +67,17 @@ export async function POST(req: Request) {
   const urlForClient = `/api/stream-video?file=${encodeURIComponent(filename)}`;
   return NextResponse.json({ url: urlForClient });
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : 'Unknown error';
+    let message = 'Unknown error';
+    if (e instanceof Error) {
+      message = e.message;
+      if ((e as any).stack) {
+        message += '\n' + (e as any).stack;
+      }
+    } else if (typeof e === 'string') {
+      message = e;
+    } else if (typeof e === 'object' && e !== null) {
+      message = JSON.stringify(e);
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
