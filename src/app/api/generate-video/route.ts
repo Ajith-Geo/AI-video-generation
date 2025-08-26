@@ -16,18 +16,18 @@ export async function POST(req: Request) {
     }
 
     const { Client } = await import("@gradio/client");
-    const client = await Client.connect("ginigen/VEO3-Free", { hf_token: token as `hf_${string}` });
-    const result = await client.predict("/generate_video_with_audio", {
+    const client = await Client.connect("KingNish/wan2-2-fast", { hf_token: token as `hf_${string}` });
+    const result = await client.predict("/generate_video", {
+      input_image: null,
       prompt: prompt,
-      nag_negative_prompt: "Static, motionless, still, ugly, bad quality, worst quality, poorly drawn, low resolution, blurry, lack of details",
-      nag_scale: 11,
-      height: 480,
-      width: 832,
+      height: 896,
+      width: 896,
+      negative_prompt: "Bright tones, overexposed, static, blurred details, subtitles, style, works, paintings, images, static, overall gray, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn faces, deformed, disfigured, misshapen limbs, fused fingers, still picture, messy background, three legs, many people in the background, walking backwards, watermark, text, signature",
       duration_seconds: duration,
+      guidance_scale: 0,
       steps: 4,
-      seed: 2025,
+      seed: 1337137907,
       randomize_seed: true,
-      enable_audio: false,
     });
 
   // Safely extract the video URL from the result without using `any`
