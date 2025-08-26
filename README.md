@@ -9,18 +9,18 @@
 - **Styling:** Tailwind CSS (utility-first CSS framework)
 - **Hosting:** Vercel (serverless, edge-ready)
 - **Storage:** Vercel Blob (for production video streaming)
-- **AI Model:** [`ginigen/VEO3-Free`](https://huggingface.co/spaces/ginigen/VEO3-Free) (Hugging Face, via Gradio client)
+- **AI Model:** [`KingNish/wan2-2-fast`](https://huggingface.co/spaces/KingNish/wan2-2-fast) (Hugging Face, via Gradio client)
 - **API Client:** @gradio/client (for model inference)
 - **Node.js:** 18+ (native fetch, streaming support)
 - **Other:** ESLint, Prettier (for code quality)
 
 ## Overview
-This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a short AI video using the ginigen/VEO3-Free model. The video is streamed directly in the browser for a seamless experience.
+This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a short AI video using the KingNish/wan2-2-fast model. The video is streamed directly in the browser for a seamless experience.
 
 ---
 
 ## Features & Functionality
-- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a video using the ginigen/VEO3-Free model via the Hugging Face/Gradio API.
+- **Prompt-based video generation**: Enter a text prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a video using the KingNish/wan2-2-fast model via the Hugging Face/Gradio API. The backend is robust to model errors and will display clear error messages in the UI if the model fails or returns no video URL.
 - **Streaming playback**: Videos are streamed to the browser using HTTP Range requests (no full download required). This is true HTTP streaming—playback starts as soon as the first bytes arrive, and users can seek without downloading the whole file.
 ## User Experience
 
