@@ -5,7 +5,7 @@
 ## Tech Stack & Model Details
 
 - **Framework:** [Next.js](https://nextjs.org/) (React, App Router)
-- **Language:** TypeScript (strict mode)
+- **Language:** JavaScript
 - **Styling:** Tailwind CSS (utility-first CSS framework)
 - **Hosting:** Vercel (serverless, edge-ready)
 - **Storage:** Vercel Blob (for production video streaming)
@@ -15,7 +15,7 @@
 - **Other:** ESLint, Prettier (for code quality)
 
 ## Overview
-This project is an AI-powered video generator built with Next.js, TypeScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a short AI video using the KingNish/wan2-2-fast model. The video is streamed directly in the browser for a seamless experience.
+This project is an AI-powered video generator built with Next.js, JavaScript, and Vercel. It allows users to enter a prompt, Hugging Face token, and duration (1–6 seconds, default 2) to generate a short AI video using the KingNish/wan2-2-fast model. The video is streamed directly in the browser for a seamless experience.
 
 ---
 
@@ -43,7 +43,6 @@ This project is an AI-powered video generator built with Next.js, TypeScript, an
 ---
 
 ## Code Quality
-- **TypeScript**: Strict typing, no `any` types, and safe error handling.
 - **Linted**: Passes ESLint and type checks.
 - **Clean code**: No unused imports, dead code, or unnecessary dependencies.
 - **Modular**: API and UI are separated and easy to maintain.

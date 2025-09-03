@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 
-
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [token, setToken] = useState("");
-  const [duration, setDuration] = useState("2.0");
-  const [durationError, setDurationError] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  // For animated dots
-  const [dotCount, setDotCount] = useState(1);
+  // State variables for form and UI
+  const [prompt, setPrompt] = useState(""); // User's text prompt
+  const [token, setToken] = useState(""); // Hugging Face token
+  const [duration, setDuration] = useState("2.0"); // Video duration
+  const [durationError, setDurationError] = useState(""); // Error for invalid duration
+  const [videoUrl, setVideoUrl] = useState(""); // URL of generated video
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(""); // Error message
+  const [dotCount, setDotCount] = useState(1); // Animated dots for feedback
+
+  // Animated dots effect while loading
   useEffect(() => {
     if (!loading) return;
     const interval = setInterval(() => {
@@ -21,9 +22,11 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setDurationError("");
+    // Validate duration
     const numDuration = Number(duration);
     if (isNaN(numDuration) || numDuration < 1 || numDuration > 6) {
       setDurationError("Duration must be a number between 1 and 6 seconds.");
@@ -33,32 +36,34 @@ export default function Home() {
     setError("");
     setVideoUrl("");
     try {
+      // Send request to backend API
       const res = await fetch("/api/generate-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ prompt, token, duration: numDuration }),
+        body: JSON.stringify({ prompt, token, duration: numDuration }),
       });
       if (res.ok) {
-        const data: { url?: string; error?: string } = await res.json();
+        // Success: set video URL
+        const data = await res.json();
         if (data.url) {
           setVideoUrl(data.url);
         } else {
           setError(data.error || "No video URL returned");
         }
       } else {
+        // Error: try to extract error message
         const errorMsg = "Error generating video";
         try {
           const data = await res.json();
-          // Try to extract a user-friendly message from error JSON
           let displayMsg = data.error || errorMsg;
+          // Try to parse error object
           try {
-            // If error is a JSON string, parse and extract message
             const parsed = typeof displayMsg === 'string' ? JSON.parse(displayMsg) : displayMsg;
             if (parsed && typeof parsed === 'object' && parsed.message) {
               displayMsg = parsed.message;
             }
           } catch {}
-          // If quota or API key issue, add suggestion
+          // Add suggestion for API key issues
           if (typeof displayMsg === 'string' && /quota|api key|token|exceeded/i.test(displayMsg)) {
             displayMsg += ' Please try another API key.';
           }
@@ -67,7 +72,8 @@ export default function Home() {
           setError(errorMsg);
         }
       }
-    } catch (err: unknown) {
+    } catch (err) {
+      // Network or unexpected error
       const message = err instanceof Error ? err.message : "Error generating video";
       setError(message);
     } finally {
@@ -104,7 +110,6 @@ export default function Home() {
           />
           <label className="flex flex-col gap-1">
             <span className="text-sm text-gray-600">Duration (1 to 6 seconds):</span>
-            {/* Plain text box for duration, as before */}
             <input
               type="text"
               className="border rounded px-3 py-2"
