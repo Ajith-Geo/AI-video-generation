@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs';
+import { put } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 
@@ -47,17 +49,37 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Failed to download video' }, { status: 500 });
     }
 
-    // 8. Get video data
-    const arrayBuffer = await videoRes.arrayBuffer();
+    // 8. Prepare filename for saving
+    const filename = `output_${Date.now()}.mp4`;
 
-    // 9. Return the video
-    return new NextResponse(Buffer.from(arrayBuffer), {
-      headers: {
-        'Content-Type': 'video/mp4',
-      },
-    });
+    // 9. If running in production with Vercel Blob, upload video
+    const tokenEnv = process.env.BLOB_READ_WRITE_TOKEN;
+    if (tokenEnv) {
+      const blob = await videoRes.blob();
+      const { url } = await put(`videos/${filename}`, blob, {
+        access: 'public',
+        contentType: 'video/mp4',
+        token: tokenEnv,
+      });
+      // Return public Blob URL
+      return NextResponse.json({ url });
+    }
+
+    // 10. If running in Vercel (no Blob), return direct video URL
+    if (process.env.VERCEL === '1') {
+      return NextResponse.json({ url: videoUrl });
+    }
+
+    // 11. Otherwise, save video locally and stream via custom endpoint
+    const videosDir = `${process.cwd()}/videos`;
+    if (!fs.existsSync(videosDir)) fs.mkdirSync(videosDir, { recursive: true });
+    const filePath = `${videosDir}/${filename}`;
+    const arrayBuffer = await videoRes.arrayBuffer();
+    await fs.promises.writeFile(filePath, Buffer.from(arrayBuffer));
+    const urlForClient = `/api/stream-video?file=${encodeURIComponent(filename)}`;
+    return NextResponse.json({ url: urlForClient });
   } catch (e) {
-    // 10. Error handling: return error message
+    // 12. Error handling: return error message
     let message = 'Unknown error';
     if (e instanceof Error) {
       message = e.message;
